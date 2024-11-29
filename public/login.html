@@ -161,7 +161,30 @@
             // 회원가입 로직 구현
             const newUsername = document.getElementById("new-username").value;
             const newPassword = document.getElementById("new-password").value;
-            // 여기서 실제 회원가입 요청을 처리하는 로직을 추가하세요.
+            fetch("https://wjdxo.shop:3018/api/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: newUsername,
+                password: newPassword,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  document.getElementById("register-message").innerText =
+                    "회원가입 성공!";
+                } else {
+                  document.getElementById("register-message").innerText =
+                    "회원가입 실패: " + data.message;
+                }
+              })
+              .catch((error) => {
+                document.getElementById("register-message").innerText =
+                  "오류 발생: " + error.message;
+              });
             document.getElementById("register-message").innerText =
               "회원가입 성공!"; // 예시 메시지
           });
