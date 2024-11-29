@@ -10,8 +10,11 @@ import equipRoutes from "./routes/equipmentRoutes.js";
 import errorHandler from "./middlewares/error.handler.middleware.js";
 import errorLogger from "./middlewares/error.logger.middleware.js";
 import logMiddleware from "./middlewares/log.middleware.js";
+import dotenv from "dotenv";
+
 //#endregion
 
+dotenv.config();
 const app = express();
 const PORT = process.env.DATABASE_PORT;
 
@@ -29,7 +32,7 @@ async function main() {
     })
   );
   //#endregion
-
+  app.use(express.static("public"));
   app.use(express.json());
   app.use("/api", userRoutes);
   app.use("/api", charaterRoutes);

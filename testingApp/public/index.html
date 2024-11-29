@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node.js JWT Auth Test</title>
+  </head>
+  <body>
+    <h1>Node.js JWT 인증 테스트</h1>
+    <input type="text" id="username" placeholder="사용자 이름" />
+    <input type="password" id="password" placeholder="비밀번호" />
+    <button id="login-button">로그인</button>
+    <p id="login-message"></p>
+    <button id="fetch-protected" style="display: none">보호된 API 호출</button>
+    <p id="protected-message"></p>
+
+    <script type="module">
+      let accessToken = "";
+      let refreshToken = "";
+
+      document
+        .getElementById("login-button")
+        .addEventListener("click", async () => {
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          const response = await fetch("http://localhost:3000/api/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            accessToken = data.accessToken;
+            refreshToken = data.refreshToken;
+            document.getElementById("login-message").innerText = "로그인 성공!";
+            document.getElementById("fetch-protected").style.display = "block";
+          } else {
+            document.getElementById("login-message").innerText = "로그인 실패!";
+          }
+        });
+
+      document
+        .getElementById("fetch-protected")
+        .addEventListener("click", async () => {
+          const response = await fetch("http://localhost:3000/api/protected", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          if (response.status === 401) {
+            // 액세스 토큰이 만료된 경우 리프레시 토큰으로 새 토큰 요청
+            const refreshResponse = await fetch(
+              "http://localhost:3000/api/token",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ token: refreshToken }),
+              }
+            );
+
+            if (refreshResponse.ok) {
+              const data = await refreshResponse.json();
+              accessToken = data.accessToken;
+              // 다시 보호된 API 호출
+              const protectedResponse = await fetch(
+                "http://localhost:3000/api/protected",
+                {
+                  method: "GET",
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                }
+              );
+              const protectedData = await protectedResponse.json();
+              document.getElementById("protected-message").innerText =
+                protectedData.message;
+            } else {
+              document.getElementById("protected-message").innerText =
+                "리프레시 토큰이 만료되었습니다. 다시 로그인하세요.";
+            }
+          } else if (response.ok) {
+            const protectedData = await response.json();
+            document.getElementById("protected-message").innerText =
+              protectedData.message;
+          } else {
+            document.getElementById("protected-message").innerText =
+              "보호된 API 호출 실패!";
+          }
+        });
+    </script>
+  </body>
+</html>
