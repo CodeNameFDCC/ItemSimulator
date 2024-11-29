@@ -17,7 +17,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 const PORT = process.env.DATABASE_PORT;
-
+app.use(express.static("public"));
 async function main() {
   //#region 세션
   app.use(
@@ -32,7 +32,7 @@ async function main() {
     })
   );
   //#endregion
-  app.use(express.static("public"));
+
   app.use(express.json());
   app.use("/api", userRoutes);
   app.use("/api", charaterRoutes);
