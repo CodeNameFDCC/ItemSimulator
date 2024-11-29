@@ -11,16 +11,14 @@ import errorHandler from "./middlewares/error.handler.middleware.js";
 import errorLogger from "./middlewares/error.logger.middleware.js";
 import logMiddleware from "./middlewares/log.middleware.js";
 import dotenv from "dotenv";
+import path from "path";
 
 //#endregion
 
 dotenv.config();
 const app = express();
 const PORT = process.env.DATABASE_PORT;
-app.use(express.static("public"));
-app.get("/", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "public", "index.html")); // 수정된 부분
-});
+app.use(express.static(path.join(process.cwd(), "public")));
 async function main() {
   //#region 세션
   app.use(
