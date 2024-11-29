@@ -18,6 +18,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.DATABASE_PORT;
 app.use(express.static("public"));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "public", "index.html")); // 수정된 부분
+});
 async function main() {
   //#region 세션
   app.use(
