@@ -5,8 +5,17 @@ import { authenticateJWT } from "../middlewares/auth.jwt.middleware.js";
 const router = express.Router();
 
 //#region 아이템 착용
-router.post("/equip", async (req, res) => {
-  const { characterId, itemId } = req.body;
+router.post("/equip", authenticateJWT, async (req, res) => {
+  const userId = req.session.userId;
+  const characterId = req.session.selectCharacter;
+
+  if (!userId) {
+    return res.status(401).json({ message: "로그인을 해주세요." });
+  }
+  if (!characterId) {
+    return res.status(401).json({ message: "캐릭터 선택을 먼저 해주세요" });
+  }
+  const { itemId } = req.body;
 
   try {
     const item = await prisma.item.findUnique({ where: { id: itemId } });
@@ -31,13 +40,23 @@ router.post("/equip", async (req, res) => {
       },
     });
 
+    // 아이템을 장비에 추가
     const updatedItem = await prisma.item.update({
       where: { id: itemId },
       data: {
         equipment: {
           connect: { characterId: characterId },
         },
-        invenId: null, // 인벤토리 ID를 null로 설정
+      },
+    });
+
+    // 캐릭터 스텟 업데이트
+    await prisma.character.update({
+      where: { id: characterId },
+      data: {
+        atkDmg: { increment: item.addAtk },
+        dfense: { increment: item.addDfense },
+        health: { increment: item.addHealth },
       },
     });
 
@@ -49,10 +68,21 @@ router.post("/equip", async (req, res) => {
 //#endregion
 
 //#region 아이템 해제
-router.post("/unequip", async (req, res) => {
-  const { characterId, itemId } = req.body;
+router.post("/unequip", authenticateJWT, async (req, res) => {
+  const userId = req.session.userId;
+  const characterId = req.session.selectCharacter;
+
+  if (!userId) {
+    return res.status(401).json({ message: "로그인을 해주세요." });
+  }
+  if (!characterId) {
+    return res.status(401).json({ message: "캐릭터 선택을 먼저 해주세요" });
+  }
+
+  const { itemId } = req.body;
 
   try {
+    // 캐릭터와 장비 정보 가져오기
     const character = await prisma.character.findUnique({
       where: { id: characterId },
       include: { equipment: true },
@@ -62,7 +92,7 @@ router.post("/unequip", async (req, res) => {
       return res.status(404).json({ error: "캐릭터를 찾을 수 없습니다." });
     }
 
-    // 아이템을 장비에서 제거하고, 인벤토리에 추가
+    // 아이템을 장비에서 제거
     await prisma.equipment.update({
       where: { characterId: characterId },
       data: {
@@ -72,13 +102,22 @@ router.post("/unequip", async (req, res) => {
       },
     });
 
+    // 아이템을 인벤토리에 추가
     const updatedItem = await prisma.item.update({
       where: { id: itemId },
       data: {
         inventory: {
           connect: { characterId: characterId },
         },
-        equipId: null, // 장비 ID를 null로 설정
+      },
+    });
+
+    await prisma.character.update({
+      where: { id: characterId },
+      data: {
+        atkDmg: { decrement: item.addAtk },
+        dfense: { decrement: item.addDfense },
+        health: { decrement: item.addHealth },
       },
     });
 
