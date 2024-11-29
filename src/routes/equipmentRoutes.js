@@ -30,6 +30,22 @@ router.post("/equip", authenticateJWT, async (req, res) => {
         .json({ error: "아이템 또는 캐릭터를 찾을 수 없습니다." });
     }
 
+    if (item.invenId) {
+      return res
+        .status(404)
+        .json({ error: "해당 아이템은 인벤토리에 없습니다." });
+    }
+
+    const inventoryItem = await prisma.inventory.findFirst({
+      where: { id: item.invenId },
+    });
+
+    if (!inventoryItem) {
+      return res
+        .status(404)
+        .json({ error: "해당 아이템은 인벤토리에 없습니다." });
+    }
+
     // 아이템을 인벤토리에서 제거하고, 장비에 추가
     await prisma.inventory.update({
       where: { characterId: characterId },
