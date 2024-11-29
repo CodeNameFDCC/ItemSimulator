@@ -89,6 +89,7 @@
     <div class="rain"></div>
     <div id="login-container" class="container">
       <h1>로그인</h1>
+      <input type="email" id="email" placeholder="이메일" />
       <input type="text" id="username" placeholder="사용자 이름" />
       <input type="password" id="password" placeholder="비밀번호" />
       <button id="login-button">로그인</button>
@@ -167,7 +168,8 @@
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                username: newUsername,
+                email,
+                loginId: newUsername,
                 password: newPassword,
               }),
             })
