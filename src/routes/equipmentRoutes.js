@@ -89,3 +89,5 @@ router.post("/unequip", async (req, res) => {
 });
 
 //#endregion
+
+export default router;
