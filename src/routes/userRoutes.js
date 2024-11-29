@@ -15,9 +15,10 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   const isLogin = req.session.userId;
   if (isLogin) {
-    return res
-      .status(400)
-      .json({ message: "로그아웃을 한 이후에 회원가입을 시도해 주세요." });
+    return res.status(400).json({
+      success: false,
+      message: "로그아웃을 한 이후에 회원가입을 시도해 주세요.",
+    });
   }
   try {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -26,7 +27,7 @@ router.post("/register", async (req, res) => {
     if (!emailRegex.test(email)) {
       return res
         .status(400)
-        .json({ message: "유효한 이메일 형식이 아닙니다." });
+        .json({ success: false, message: "유효한 이메일 형식이 아닙니다." });
     }
 
     // 사용자 중복 체크
@@ -39,7 +40,9 @@ router.post("/register", async (req, res) => {
       },
     });
     if (existingUser) {
-      return res.status(400).json({ message: "사용자가 이미 존재합니다." });
+      return res
+        .status(400)
+        .json({ success: false, message: "사용자가 이미 존재합니다." });
     }
 
     // 비밀번호 해싱
@@ -58,12 +61,16 @@ router.post("/register", async (req, res) => {
       },
     });
 
-    res
-      .status(201)
-      .json({ message: "회원가입이 완료되었습니다.", userId: newUser.id });
+    res.status(201).json({
+      success: true,
+      message: "회원가입이 완료되었습니다.",
+      userId: newUser.id,
+    });
   } catch (error) {
     console.error("회원가입 중 오류 발생:", error);
-    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    res
+      .status(500)
+      .json({ success: false, message: "서버 오류가 발생했습니다." });
   } finally {
     await prisma.$disconnect(); // Prisma 클라이언트 연결 종료
   }
@@ -86,19 +93,25 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET_KEY;
 router.post("/login", async (req, res) => {
   const loginId = req.session.userId;
   if (loginId) {
-    return res.status(400).json({ message: "로그아웃을 먼저 해주세요!" });
+    return res
+      .status(400)
+      .json({ success: false, message: "로그아웃을 먼저 해주세요!" });
   }
   try {
     const { loginId, password } = req.body;
 
     const user = await prisma.user.findUnique({ where: { loginId } });
     if (!user) {
-      return res.status(400).json({ message: "사용자를 찾을 수 없습니다." });
+      return res
+        .status(400)
+        .json({ success: false, message: "사용자를 찾을 수 없습니다." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "비밀번호가 올바르지 않습니다." });
+      return res
+        .status(401)
+        .json({ success: false, message: "비밀번호가 올바르지 않습니다." });
     }
     const accessToken = jwt.sign(
       { id: user.id, loginId: user.loginId },
@@ -121,13 +134,16 @@ router.post("/login", async (req, res) => {
     console.log("---------------------------------");
 
     res.json({
+      success: true,
       mesassge: "로그인 성공 하였습니다.",
       accessToken,
       refreshToken,
     });
   } catch (error) {
     console.error("로그인 중 오류 발생:", error);
-    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    res
+      .status(500)
+      .json({ success: false, message: "서버 오류가 발생했습니다." });
   } finally {
     await prisma.$disconnect();
   }

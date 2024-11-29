@@ -12,6 +12,7 @@ import errorLogger from "./middlewares/error.logger.middleware.js";
 import logMiddleware from "./middlewares/log.middleware.js";
 import dotenv from "dotenv";
 import path from "path";
+import cors from "cors";
 
 //#endregion
 
@@ -32,6 +33,14 @@ async function main() {
       }, // HTTPS에서만 쿠키를 전송하려면 true로 설정
     })
   );
+  //#endregion
+  //#region cors
+  const corsOptions = {
+    origin: "*", // 모든 출처 허용
+    methods: ["GET", "POST"],
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
   //#endregion
 
   app.use(express.json());
