@@ -3,8 +3,9 @@ import bcrypt from "bcryptjs";
 import { authenticateJWT } from "../middlewares/auth.jwt.middleware.js";
 import jwt from "jsonwebtoken"; // jwt 모듈 import
 import { prisma } from "../utils/prisma/index.js";
+import dotenv from "dotenv";
+dotenv.config();
 const router = express.Router();
-
 //#region 회원가입
 
 //===========================================
@@ -78,6 +79,7 @@ router.post("/register", async (req, res) => {
 //===========================================
 //===========================================
 let refreshTokens = [];
+
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET_KEY;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET_KEY;
 // 로그인

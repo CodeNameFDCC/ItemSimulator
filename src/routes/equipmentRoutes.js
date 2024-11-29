@@ -1,7 +1,8 @@
 import express from "express";
 import { prisma } from "../utils/prisma/index.js";
 import { authenticateJWT } from "../middlewares/auth.jwt.middleware.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 const router = express.Router();
 
 //#region 아이템 착용
