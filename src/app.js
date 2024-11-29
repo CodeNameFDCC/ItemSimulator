@@ -1,21 +1,55 @@
+//#region 모듈
+import { prisma } from "./utils/prisma/index.js";
 import express from "express";
-import cookieParser from "cookie-parser";
-import path from "path"; // path 모듈 import 추가
-import UsersRouter from "./routes/users.router.js";
-import sessionMiddleware from "./middlewares/auth.session.middleware.js";
+import session from "express-session";
+import userRoutes from "./routes/userRoutes.js";
+import charaterRoutes from "./routes/characterRoutes.js";
+import inventoryRoutes from "./routes/inventoryRoutes.js";
+import shopRoutes from "./routes/shopRoutes.js";
+import errorHandler from "./middlewares/error.handler.middleware.js";
+import errorLogger from "./middlewares/error.logger.middleware.js";
+import logMiddleware from "./middlewares/log.middleware.js";
+//#endregion
 
 const app = express();
-const PORT = 3018;
+const PORT = process.env.DATABASE_PORT;
 
-// 정적 파일 제공
-app.use(express.static(path.join(process.cwd(), "public"))); // public 폴더의 정적 파일 제공
+async function main() {
+  //#region 세션
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET_KEY, // 세션 서명에 사용되는 비밀 키
+      resave: false, // 세션이 수정되지 않았더라도 저장할지 여부
+      saveUninitialized: true, // 초기화되지 않은 세션을 저장할지 여부
+      cookie: {
+        maxAge: 1000 * 60 * 60, //1시간
+        secure: false,
+      }, // HTTPS에서만 쿠키를 전송하려면 true로 설정
+    })
+  );
+  //#endregion
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(sessionMiddleware);
+  app.use(express.json());
+  app.use("/api", userRoutes);
+  app.use("/api", charaterRoutes);
+  app.use("/api", inventoryRoutes);
+  app.use("/api", shopRoutes);
 
-app.use("/api", [UsersRouter]);
+  app.get("/error", (req, res) => {
+    throw new Error("강제 오류 발생!");
+  });
+  // app.use(logMiddleware);
+  app.use(errorLogger);
+  app.use(errorHandler);
+  app.listen(PORT, () => {
+    console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(PORT, "포트로 서버가 열렸어요!");
-});
+main()
+  .catch((e) => {
+    console.error(e.message);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

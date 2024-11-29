@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>캐릭터 페이지</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Arial", sans-serif;
+        background-color: #1a1a1a;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      nav {
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        width: 100%;
+        position: fixed; /* 고정 위치로 변경 */
+        top: 0;
+        z-index: 10;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      nav ul li {
+        display: inline;
+        margin-right: 20px;
+      }
+
+      nav ul li a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .input-container {
+        margin-top: 60px; /* 네비게이션 바 아래 여백 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .input-container input {
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        margin-bottom: 10px;
+        width: 200px;
+      }
+
+      .character-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px; /* 캐릭터 카드 위쪽 여백 */
+        width: 100%;
+      }
+
+      .character-card {
+        background-color: rgba(255, 87, 51, 0.8);
+        border-radius: 10px;
+        margin: 10px;
+        padding: 20px;
+        width: 200px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s;
+        cursor: pointer; /* 마우스 포인터를 손가락 모양으로 변경 */
+      }
+
+      .character-card:hover {
+        transform: scale(1.05); /* 호버 시 확대 효과 */
+      }
+
+      .character-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px; /* 이미지 모서리 둥글게 */
+      }
+
+      .remove-button {
+        background-color: transparent;
+        color: white;
+        border: none;
+        font-size: 20px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+      }
+
+      .remove-button:hover {
+        color: #c70039; /* 호버 시 색상 변경 */
+      }
+
+      .select-button {
+        background-color: #ff5733;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      .select-button:hover {
+        opacity: 0.8; /* 버튼 호버 시 투명도 효과 */
+      }
+
+      .add-character {
+        background-color: #ff5733;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      .add-character:hover {
+        opacity: 0.8; /* 버튼 호버 시 투명도 효과 */
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html">메인 페이지</a></li>
+        <li><a href="login.html">로그인</a></li>
+        <li><a href="character.html">캐릭터</a></li>
+        <li><a href="item.html">아이템</a></li>
+        <li><a href="inventory.html">인벤토리</a></li>
+      </ul>
+    </nav>
+
+    <div class="input-container">
+      <input type="text" id="characterName" placeholder="캐릭터 이름" />
+      <input type="url" id="characterImage" placeholder="이미지 URL" />
+      <button class="add-character" onclick="addCharacter()">
+        캐릭터 추가
+      </button>
+    </div>
+
+    <div class="character-container" id="characterContainer">
+      <!-- 캐릭터 카드가 여기에 추가됩니다. -->
+    </div>
+
+    <script>
+      function addCharacter() {
+        const characterName = document.getElementById("characterName").value;
+        const characterImage = document.getElementById("characterImage").value;
+
+        if (characterName.trim() === "" || characterImage.trim() === "") {
+          alert("캐릭터 이름과 이미지를 입력하세요!");
+          return;
+        }
+
+        const characterContainer =
+          document.getElementById("characterContainer");
+
+        // 캐릭터 카드 생성
+        const card = document.createElement("div");
+        card.className = "character-card";
+        card.innerHTML = `
+                <img src="${characterImage}" alt="${characterName}">
+                <h3>${characterName}</h3>
+                <button class="remove-button" onclick="removeCharacter(event)">✖</button>
+                <button class="select-button" onclick="selectCharacter('${characterName}', '${characterImage}')">선택</button>
+            `;
+
+        characterContainer.appendChild(card);
+        document.getElementById("characterName").value = ""; // 입력 필드 초기화
+        document.getElementById("characterImage").value = ""; // 입력 필드 초기화
+      }
+
+      function removeCharacter(event) {
+        const card = event.target.parentElement;
+        card.remove(); // 카드 제거
+      }
+
+      function selectCharacter(name, image) {
+        // 캐릭터 정보 페이지로 이동
+        window.location.href = `character-info.html?name=${encodeURIComponent(
+          name
+        )}&image=${encodeURIComponent(image)}`;
+      }
+    </script>
+  </body>
+</html>

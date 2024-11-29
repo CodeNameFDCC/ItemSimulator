@@ -1,0 +1,3 @@
+2024-11-28T09:31:30.677Z - GET - /error - [object Object] - [object Object]- [object Object] - 강제 오류 발생!
+2024-11-28T09:31:51.880Z - GET - /error - [object Object] - [object Object]- [object Object] - 강제 오류 발생!
+2024-11-28T09:42:33.162Z - POST - /api/logout - [object Object] - [object Object]- [object Object] - Cannot read properties of undefined (reading 'userId')

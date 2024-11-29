@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인 페이지</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Arial", sans-serif;
+        color: white;
+        background-image: url("loginBg.jpg"); /* 배경 이미지 */
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* 전체 화면 높이 */
+        position: relative;
+        overflow: hidden;
+      }
+
+      nav {
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        position: absolute;
+        width: 100%;
+        top: 0;
+        z-index: 10;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      nav ul li {
+        display: inline;
+        margin-right: 20px;
+      }
+
+      nav ul li a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .login-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 40px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        transform: translateY(-30px);
+        animation: slideIn 0.5s ease-in-out forwards; /* 애니메이션 추가 */
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .login-container h1 {
+        margin-bottom: 20px;
+        font-size: 2.2em; /* 제목 크기 조정 */
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7); /* 텍스트 그림자 추가 */
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+        position: relative; /* 아이콘을 위해 상대 위치 설정 */
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px 20px; /* 여백 추가 */
+        border: none;
+        border-radius: 5px;
+        background-color: #333; /* 입력 필드 배경 색상 */
+        color: white; /* 입력 텍스트 색상 */
+        transition: background-color 0.3s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* 입력 필드 그림자 */
+      }
+
+      .input-group input::placeholder {
+        color: #aaa; /* 플레이스홀더 색상 */
+      }
+
+      .input-group input:focus {
+        background-color: #444; /* 포커스 시 배경 색상 */
+        outline: none; /* 포커스 아웃라인 제거 */
+        box-shadow: 0 0 5px rgba(255, 87, 51, 0.7); /* 포커스 시 그림자 */
+      }
+
+      .login-button {
+        background-color: #ff5733;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s; /* 버튼 애니메이션 */
+        width: 100%;
+        margin-top: 10px; /* 버튼 위쪽 여백 */
+      }
+
+      .login-button:hover {
+        background-color: #c70039;
+        transform: translateY(-2px); /* 버튼 호버 시 효과 */
+      }
+
+      .register-link {
+        margin-top: 15px;
+      }
+
+      .register-link a {
+        color: #ff5733;
+        text-decoration: none;
+      }
+
+      /* 입력 필드가 뚫고 나오는 효과 */
+      .input-group input {
+        position: relative;
+        z-index: 2;
+      }
+
+      .background-effect {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 120%;
+        height: 120%;
+        background-color: rgba(255, 87, 51, 0.2); /* 배경 효과 색상 */
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        animation: pulse 2s infinite; /* 애니메이션 추가 */
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html">메인 페이지</a></li>
+        <li><a href="login.html">로그인</a></li>
+        <li><a href="character.html">캐릭터</a></li>
+        <li><a href="item.html">아이템</a></li>
+        <li><a href="inventory.html">인벤토리</a></li>
+      </ul>
+    </nav>
+
+    <div class="login-container">
+      <div class="background-effect"></div>
+      <!-- 배경 효과 -->
+      <h1>로그인</h1>
+      <form>
+        <div class="input-group">
+          <label for="username">사용자 이름:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="사용자 이름을 입력하세요"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="password">비밀번호:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="비밀번호를 입력하세요"
+            required
+          />
+        </div>
+        <button type="submit" class="login-button">로그인</button>
+      </form>
+      <p class="register-link">
+        아직 계정이 없으신가요? <a href="register.html">회원가입</a>
+      </p>
+    </div>
+  </body>
+</html>
