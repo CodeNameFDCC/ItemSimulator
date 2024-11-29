@@ -152,8 +152,28 @@
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
-            // 여기서 실제 로그인 요청을 처리하는 로직을 추가하세요.
-            document.getElementById("login-message").innerText = "로그인 성공!"; // 예시 메시지
+            // 로그인 요청
+            fetch("https://wjdxo.shop:3018/api/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ loginId: username, password: password }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  document.getElementById("login-message").innerText =
+                    "로그인 성공!";
+                } else {
+                  document.getElementById("login-message").innerText =
+                    "로그인 실패: " + data.message;
+                }
+              })
+              .catch((error) => {
+                document.getElementById("login-message").innerText =
+                  "오류 발생: " + error.message;
+              });
           });
 
         // 회원가입 버튼 클릭 시 처리
