@@ -2,6 +2,7 @@
 import { prisma } from "./utils/prisma/index.js";
 import express from "express";
 import session from "express-session";
+import tokenRoutes from "./routes/tokenRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import charaterRoutes from "./routes/characterRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
@@ -9,7 +10,6 @@ import shopRoutes from "./routes/shopRoutes.js";
 import equipRoutes from "./routes/equipmentRoutes.js";
 import errorHandler from "./middlewares/error.handler.middleware.js";
 import errorLogger from "./middlewares/error.logger.middleware.js";
-import logMiddleware from "./middlewares/log.middleware.js";
 import dotenv from "dotenv";
 import path from "path";
 import cors from "cors";
@@ -34,21 +34,23 @@ async function main() {
     })
   );
   //#endregion
+
   //#region cors
   const corsOptions = {
     origin: "*", // 모든 출처 허용
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   };
   app.use(cors(corsOptions));
   //#endregion
 
   app.use(express.json());
+  app.use("/api", tokenRoutes);
   app.use("/api", userRoutes);
   app.use("/api", charaterRoutes);
   app.use("/api", inventoryRoutes);
-  app.use("/api", shopRoutes);
-  app.use("/api", equipRoutes);
+  // app.use("/api", shopRoutes);
+  // app.use("/api", equipRoutes);
 
   app.get("/error", (req, res) => {
     throw new Error("강제 오류 발생!");

@@ -1,1 +1,1 @@
-DROP DATABASE item_simulator;
+DROP DATABASE item_simulator_2;

@@ -5,7 +5,87 @@ import jwt from "jsonwebtoken"; // jwt 모듈 import
 import { prisma } from "../utils/prisma/index.js";
 import dotenv from "dotenv";
 dotenv.config();
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET_KEY;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET_KEY;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+//#region 로그인
+
 const router = express.Router();
+// 로그인 요청 처리
+router.post("/login", async (req, res) => {
+  try {
+    const { userName, userPassword } = req.body;
+    // 사용자 이름으로 계정 조회 (비동기 처리)
+    const account = await prisma.account.findFirst({ where: { userName } });
+
+    // 계정이 없거나 비밀번호가 유효하지 않은 경우
+    if (!account) {
+      return res
+        .status(401)
+        .json({ message: "로그인 실패: 잘못된 사용자 이름 또는 비밀번호" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      userPassword,
+      account.userPassword
+    );
+
+    if (!isPasswordValid) {
+      return res
+        .status(401)
+        .json({ message: "로그인 실패: 잘못된 사용자 이름 또는 비밀번호" });
+    }
+
+    // JWT 토큰 생성
+    const accessToken = jwt.sign(
+      { userName: account.userName, id: account.id },
+      ACCESS_TOKEN_SECRET,
+      { expiresIn: "30m" }
+    );
+    const refreshToken = jwt.sign(
+      { userName: account.userName },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      userId: account.id,
+      userName: account.userName,
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    //throw new Error("로그인 에러 : " + error);
+    res.status(500).json({ error: "User login failed" });
+  }
+});
+
+//#endregion
+
+//#region 회원가입
+router.post("/signup", async (req, res) => {
+  try {
+    const { userEmail, userName, userPassword } = req.body;
+    // 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(userPassword, 10);
+    const account = await prisma.account.create({
+      data: {
+        userName,
+        userEmail,
+        userPassword: hashedPassword,
+      },
+    });
+    res.status(201).json({ message: "User created", account });
+  } catch (error) {
+    res.status(500).json({ error: "User creation failed" });
+    //throw new Error("회원가입 Error" + error);
+  }
+});
+//#endregion
+
+//#region Backup
+/*
 //#region 회원가입
 
 //===========================================
@@ -272,6 +352,9 @@ router.get("/users", authenticateJWT, async (req, res) => {
 //===========================================
 //===========================================
 
+//#endregion
+
+*/
 //#endregion
 
 export default router;

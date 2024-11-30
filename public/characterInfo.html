@@ -3,256 +3,129 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>캐릭터 정보</title>
+    <title>캐릭터 정보 조회</title>
     <style>
       body {
-        margin: 0;
-        font-family: "Arial", sans-serif;
-        background-color: #1a1a1a;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
       }
-
-      nav {
-        background-color: rgba(0, 0, 0, 0.7);
-        padding: 10px;
-        width: 100%;
-        position: fixed;
-        top: 0;
-        z-index: 10;
-      }
-
-      nav ul {
-        list-style-type: none;
-        padding: 0;
-      }
-
-      nav ul li {
-        display: inline;
-        margin-right: 20px;
-      }
-
-      nav ul li a {
-        color: white;
-        text-decoration: none;
-      }
-
-      .character-info {
-        background-color: rgba(255, 87, 51, 0.8);
-        border-radius: 10px;
-        padding: 20px;
+      h1 {
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        margin-top: 60px; /* 네비게이션 바 아래 여백 */
       }
-
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .character-info {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+      }
       .character-info img {
-        width: 200px;
-        height: auto;
-        border-radius: 10px;
-        margin-bottom: 15px;
+        max-width: 100%;
+        border-radius: 8px;
       }
-
       .inventory,
-      .equipment {
-        margin-top: 20px;
-        text-align: left;
-      }
-
-      .inventory h4,
-      .equipment h4 {
-        margin-bottom: 10px;
-      }
-
-      .inventory ul,
-      .equipment ul {
-        list-style-type: none;
-        padding: 0;
-      }
-
-      .inventory li,
-      .equipment li {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 5px;
-        margin: 5px 0;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-
-      .inventory li:hover,
-      .equipment li:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-      }
-
-      .slots {
-        display: flex;
-        justify-content: center;
+      .equipped-items {
         margin-top: 20px;
       }
-
-      .slot {
-        width: 60px;
-        height: 60px;
-        border: 2px dashed #ff5733;
-        border-radius: 5px;
+      .item {
+        display: inline-block;
+        border: 1px solid #ccc;
+        padding: 10px;
         margin: 5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-
-      .slot img {
-        width: 100%;
-        height: 100%;
+        text-align: center;
         border-radius: 5px;
-        display: none; /* 기본적으로 숨김 */
+        background-color: #fafafa;
       }
-
-      .slot.active img {
-        display: block; /* 장착된 아이템이 있을 경우 표시 */
-      }
-
-      .slot:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-      }
-
-      .remove-button {
-        position: absolute;
-        top: 0;
-        right: 0;
-        background-color: rgba(255, 0, 0, 0.8);
-        border: none;
-        color: white;
-        border-radius: 5px;
-        padding: 3px 5px;
-        cursor: pointer;
-        font-size: 12px;
-        display: none; /* 기본적으로 숨김 */
-      }
-
-      .slot:hover .remove-button {
-        display: block; /* 슬롯 호버 시 제거 버튼 표시 */
+      .error {
+        color: red;
+        text-align: center;
       }
     </style>
   </head>
   <body>
-    <nav>
-      <ul>
-        <li><a href="index.html">메인 페이지</a></li>
-        <li><a href="login.html">로그인</a></li>
-        <li><a href="character.html">캐릭터</a></li>
-        <li><a href="item.html">아이템</a></li>
-        <li><a href="inventory.html">인벤토리</a></li>
-      </ul>
-    </nav>
+    <div class="container">
+      <h1>캐릭터 정보</h1>
+      <div id="character-details" class="character-info" style="display: none">
+        <h2 id="character-name"></h2>
+        <img id="character-image" src="" alt="캐릭터 이미지" />
+        <p id="character-description"></p>
 
-    <div class="character-info" id="characterInfo">
-      <!-- 캐릭터 정보가 여기에 표시됩니다. -->
+        <h3>인벤토리</h3>
+        <div id="inventory" class="inventory"></div>
+
+        <h3>장착된 아이템</h3>
+        <div id="equipped-items" class="equipped-items"></div>
+      </div>
+
+      <div id="error-message" class="error" style="display: none"></div>
     </div>
 
     <script>
-      const params = new URLSearchParams(window.location.search);
-      const name = params.get("name");
-      const image = params.get("image");
+      // 미리 정의된 캐릭터 ID
 
-      // 예시 데이터: 이 부분은 실제 데이터로 교체해야 함
-      const characterData = {
-        name: name,
-        image: image,
-        attack: 50,
-        health: 100,
-        inventory: ["검", "방패", "포션"],
-        equipment: {
-          weapon: "",
-          shield: "",
-        },
+      // 페이지 로드 시 캐릭터 정보 가져오기
+      window.onload = () => {
+        const characterId = window.sessionStorage.getItem("characterId");
+        fetchCharacterInfo(characterId);
       };
 
-      const characterInfo = document.getElementById("characterInfo");
-
-      // 캐릭터 정보 표시
-      characterInfo.innerHTML = `
-            <h1>${characterData.name}</h1>
-            <img src="${characterData.image}" alt="${characterData.name}">
-            <p>공격력: ${characterData.attack}</p>
-            <p>체력: ${characterData.health}</p>
-            <div class="equipment">
-                <h4>장비:</h4>
-                <div class="slots">
-                    <div class="slot" id="weaponSlot" onclick="toggleEquip('weapon')">
-                        <span>무기</span>
-                        <img src="" id="weaponImage" alt="무기">
-                        <button class="remove-button" onclick="unequipItem('weapon', event)">제거</button>
-                    </div>
-                    <div class="slot" id="shieldSlot" onclick="toggleEquip('shield')">
-                        <span>방패</span>
-                        <img src="" id="shieldImage" alt="방패">
-                        <button class="remove-button" onclick="unequipItem('shield', event)">제거</button>
-                    </div>
-                </div>
-            </div>
-            <div class="inventory">
-                <h4>인벤토리 아이템:</h4>
-                <ul>
-                    ${characterData.inventory
-                      .map(
-                        (item) =>
-                          `<li onclick="equipItem('${item}')">${item}</li>`
-                      )
-                      .join("")}
-                </ul>
-            </div>
-        `;
-
-      function equipItem(item) {
-        if (item === "검") {
-          characterData.equipment.weapon = item;
-          document.getElementById("weaponImage").src =
-            "path/to/your/weapon-image.png"; // 이미지 경로 설정
-          document.getElementById("weaponImage").alt = item;
-          document.getElementById("weaponSlot").classList.add("active");
-        } else if (item === "방패") {
-          characterData.equipment.shield = item;
-          document.getElementById("shieldImage").src =
-            "path/to/your/shield-image.png"; // 이미지 경로 설정
-          document.getElementById("shieldImage").alt = item;
-          document.getElementById("shieldSlot").classList.add("active");
-        } else {
-          alert("장착할 수 없는 아이템입니다.");
-        }
-      }
-
-      function unequipItem(slot, event) {
-        event.stopPropagation(); // 이벤트 전파 방지
-        if (slot === "weapon") {
-          characterData.equipment.weapon = "";
-          document.getElementById("weaponImage").src = "";
-          document.getElementById("weaponSlot").classList.remove("active");
-        } else if (slot === "shield") {
-          characterData.equipment.shield = "";
-          document.getElementById("shieldImage").src = "";
-          document.getElementById("shieldSlot").classList.remove("active");
-        }
-      }
-
-      function toggleEquip(slot) {
-        if (slot === "weapon") {
-          if (characterData.equipment.weapon) {
-            unequipItem("weapon", event);
-          } else {
-            alert("무기를 장착하세요.");
+      // 선택한 캐릭터의 정보를 가져오는 함수
+      async function fetchCharacterInfo(id) {
+        alert(id);
+        try {
+          const response = await fetch(
+            `http://localhost:3018/api/character/${id}`
+          );
+          if (!response.ok) {
+            throw new Error("캐릭터를 찾을 수 없습니다.");
           }
-        } else if (slot === "shield") {
-          if (characterData.equipment.shield) {
-            unequipItem("shield", event);
-          } else {
-            alert("방패를 장착하세요.");
-          }
+
+          const character = await response.json();
+
+          // 캐릭터 정보 표시
+          document.getElementById("character-name").textContent =
+            character.characterName;
+          document.getElementById("character-image").src =
+            character.characterImage || "default-image.png"; // 기본 이미지
+          document.getElementById("character-description").textContent =
+            character.description || "설명 없음";
+
+          // // 인벤토리 표시
+          // const inventoryDiv = document.getElementById("inventory");
+          // inventoryDiv.innerHTML = "";
+          // character.inventory.forEach((item) => {
+          //   const itemDiv = document.createElement("div");
+          //   itemDiv.className = "item";
+          //   itemDiv.textContent = item.itemName; // 아이템 이름
+          //   inventoryDiv.appendChild(itemDiv);
+          // });
+
+          // // 장착된 아이템 표시 (가정: equippedItems 필드가 존재한다고 가정)
+          // const equippedDiv = document.getElementById("equipped-items");
+          // equippedDiv.innerHTML = "";
+          // if (character.equippedItems) {
+          //   character.equippedItems.forEach((item) => {
+          //     const equippedItemDiv = document.createElement("div");
+          //     equippedItemDiv.className = "item";
+          //     equippedItemDiv.textContent = item.itemName; // 장착된 아이템 이름
+          //     equippedDiv.appendChild(equippedItemDiv);
+          //   });
+          // }
+
+          // 캐릭터 정보 표시
+          document.getElementById("character-details").style.display = "block";
+          document.getElementById("error-message").style.display = "none";
+        } catch (error) {
+          document.getElementById("error-message").textContent = error.message;
+          document.getElementById("error-message").style.display = "block";
+          document.getElementById("character-details").style.display = "none";
         }
       }
     </script>

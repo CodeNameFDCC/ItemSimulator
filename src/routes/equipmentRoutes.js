@@ -5,6 +5,16 @@ import dotenv from "dotenv";
 dotenv.config();
 const router = express.Router();
 
+//#region 아이템 장착
+
+//#endregion
+
+//#region 아이템 해제
+
+//#endregion
+
+//#region Backup
+/*
 //#region 아이템 착용
 router.post("/equip", authenticateJWT, async (req, res) => {
   const userId = req.session.userId;
@@ -144,6 +154,8 @@ router.post("/unequip", authenticateJWT, async (req, res) => {
   }
 });
 
+//#endregion
+*/
 //#endregion
 
 export default router;

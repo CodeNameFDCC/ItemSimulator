@@ -17,81 +17,62 @@ datasource db {
 //============================================================
 //============================================================
 //============================================================
+model Account {
+  id           String @id @default(uuid())
+  userName     String @unique
+  userEmail    String @unique
+  userPassword String
 
-model User {
-  id       String      @id @default(uuid())
-  email    String      @unique
-  loginId  String      @unique
-  password String
-  createAt DateTime    @default(now())
-  updateAt DateTime    @updatedAt
-  userInfo UserInfo?
-  charater Character[]
-}
-
-model UserInfo {
-  id   String  @id @default(uuid())
-  img  String?
-  desc String?
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @unique
+  character Character[]
 }
 
 model Character {
-  id        String     @id @default(uuid())
-  nickName  String     @unique
-  atkDmg    Int        @default(10)
-  dfense    Int        @default(1)
-  health    Int        @default(100)
-  gold      Int        @default(10000)
-  inventory Inventory?
-  equipment Equipment?
+  id             String @id @default(uuid())
+  userName       String
+  characterName  String @unique
+  characterImage String
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  damage  Int   @default(10)
+  health  Int   @default(100)
+  defense Int   @default(1)
+  atkspd  Float @default(1)
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  inventory   Inventory?
+  inventoryId String?    @unique // 1:1 관계를 위해 unique 제약조건 추가
 }
 
 model Inventory {
-  id    String @id @default(uuid())
-  items Item[]
+  id           String  @id @default(uuid())
+  userName     String
+  userId       String?
+  chracterName String
+  money        Int     @default(10000)
 
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId String    @unique
-}
-
-model Equipment {
-  id    String @id @default(uuid())
-  items Item[]
-
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId String    @unique
-}
-
-model Shop {
-  id    String @id @default(uuid())
-  name  String
-  desc  String
-  items Item[]
+  characterId String    @unique // 1:1 관계를 위해 unique 제약조건 추가
+  item        Item[]
 }
 
 model Item {
-  id        String @id @default(uuid())
-  img       String
-  type      String
-  name      String
-  desc      String
-  price     Int
-  addAtk    Int
-  addDfense Int
-  addHealth Int
+  id           String  @id @default(uuid())
+  itemName     String?
+  userName     String?
+  userId       String?
+  chracterName String?
+  characterId  String?
 
-  inventory Inventory? @relation(fields: [invenId], references: [id], onDelete: Cascade)
-  invenId   String?
-  equipment Equipment? @relation(fields: [equipId], references: [id], onDelete: Cascade)
-  equipId   String?
-  shop      Shop?      @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  shopId    String?
+  itemImage  String  @default("")
+  isEquip    Boolean @default(false)
+  addDamage  Int     @default(0)
+  addHealth  Int     @default(0)
+  addDefense Int     @default(0)
+  addAtkSpd  Int     @default(0)
+
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  inventoryId String
 }
 
 //============================================================

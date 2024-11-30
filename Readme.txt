@@ -175,3 +175,15 @@ test : 테스트 코드, 리펙토링 테스트 코드 추가
 
 
 ---------------------------------------
+
+제거
+DROP DATABASE item_simulator;
+
+프리즈마 생성
+npx prisma db push
+
+프리즈마 마이그레이션
+npx prisma migrate dev --name [명칭!!]
+
+프리즈마 상태 확인
+npx prisma studio
