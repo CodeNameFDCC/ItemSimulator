@@ -16,12 +16,14 @@ const router = express.Router();
 // 로그인 요청 처리
 router.post("/login", async (req, res) => {
   try {
+    console.log("로그인 시도");
     const { userName, userPassword } = req.body;
     // 사용자 이름으로 계정 조회 (비동기 처리)
     const account = await prisma.account.findFirst({ where: { userName } });
 
     // 계정이 없거나 비밀번호가 유효하지 않은 경우
     if (!account) {
+      console.log("계정 없음");
       return res
         .status(401)
         .json({ message: "로그인 실패: 잘못된 사용자 이름 또는 비밀번호" });
