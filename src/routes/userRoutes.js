@@ -17,6 +17,13 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
   try {
     console.log("로그인 시도");
+    console.log("env" + process.env.DATABASE_NAME);
+    console.log("env" + process.env.DATABASE_URL);
+    console.log("env" + process.env.DATABASE_HOST);
+    console.log("env" + process.env.DATABASE_PORT);
+    console.log("env" + process.env.DATABASE_NAME);
+    console.log("env" + process.env.DATABASE_USERNAME);
+
     const { userName, userPassword } = req.body;
     // 사용자 이름으로 계정 조회 (비동기 처리)
     const account = await prisma.account.findFirst({ where: { userName } });
