@@ -65,7 +65,9 @@ model Item {
   characterId  String?
 
   itemImage  String  @default("")
+  itemDesc   String  @default("")
   isEquip    Boolean @default(false)
+  price      Int     @default(700)
   addDamage  Int     @default(0)
   addHealth  Int     @default(0)
   addDefense Int     @default(0)

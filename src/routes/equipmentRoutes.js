@@ -5,11 +5,52 @@ import dotenv from "dotenv";
 dotenv.config();
 const router = express.Router();
 
-//#region 아이템 장착
+//#region 아이템 착용 토글
 
+//#region 아이템 착용/해제
+router.patch("/item/equip/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 아이템 존재 여부 확인
+    const item = await prisma.item.findUnique({
+      where: { id: id },
+    });
+
+    if (!item) {
+      return res.status(404).json({ message: "아이템을 찾을 수 없습니다." });
+    }
+
+    // 현재 isEquip 상태를 토글
+    const updatedItem = await prisma.item.update({
+      where: { id: id },
+      data: { isEquip: !item.isEquip },
+    });
+    const calc = updatedItem.isEquip ? 1 : -1;
+
+    const character = await prisma.character.findFirst({
+      where: { id: item.characterId },
+    });
+
+    const updatedCharacter = await prisma.character.update({
+      where: { id: item.characterId },
+      data: {
+        damage: character.damage + item.addDamage * calc,
+        health: character.health + item.addHealth * calc,
+        defense: character.defense + item.addDefense * calc,
+        atkspd: character.atkspd + item.addAtkSpd * calc,
+      },
+    });
+
+    return res.status(200).json(updatedItem);
+  } catch (error) {
+    console.error("아이템 착용/해제 중 오류 발생:", error);
+    return res
+      .status(500)
+      .json({ message: "아이템 착용/해제 실패", error: error.message });
+  }
+});
 //#endregion
-
-//#region 아이템 해제
 
 //#endregion
 

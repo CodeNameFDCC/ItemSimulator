@@ -34,17 +34,28 @@ router.get("/inventory/:characterId", async (req, res) => {
 
 //#region 아이템 생성
 router.post("/item", async (req, res) => {
-  const { name, image, desc, characterId } = req.body;
+  console.log("아이템 생성 시도");
+  console.log(req.body);
+  const {
+    itemName,
+    itemDesc,
+    itemImage,
+    addDamage,
+    addHealth,
+    addDefense,
+    addAtkSpd,
+    characterId,
+  } = req.body;
 
   // 입력 값 검증
-  if (!name || !image || !desc || !characterId) {
+  if (!itemName || !itemImage || !itemDesc || !characterId) {
     return res.status(400).json({
       message: "이름, 이미지, 설명,사용자 ID를 모두 입력해야 합니다.",
     });
   }
 
   console.log(
-    `이름: ${name}, 이미지: ${image},설명:${desc}, 캐릭터Id: ${characterId}`
+    `이름: ${itemName}, 이미지: ${itemImage},설명:${itemDesc}, 캐릭터Id: ${characterId}`
   );
 
   try {
@@ -53,33 +64,41 @@ router.post("/item", async (req, res) => {
       where: { id: characterId },
     });
     if (!character) {
+      console.log("캐릭터 없음");
       return res.status(403).json({ message: "권한이 없습니다." });
     }
     const uniqueName = await prisma.item.findFirst({
-      where: { itemName: name },
+      where: { itemName: itemName },
     });
 
     if (uniqueName) {
+      console.log("이미 존재하는 아이템");
       return res.status(403).json({ message: "이미 존재하는 이름입니다." });
     }
 
     //아이템 생성
     const item = await prisma.item.create({
       data: {
-        itemName: name,
+        itemName: itemName,
+        itemDesc: itemDesc,
         userId: character.accountId,
-        userName: user.userName, // 사용자 이름을 아이템에 설정
+        userName: character.userName, // 사용자 이름을 아이템에 설정
         chracterName: character.characterName, // 아이템 이름 설정
         characterId: character.id,
-        itemImage: image, // 아이템 이미지 설정
-        inventory: { connect: { id: userId } }, // 인벤토리와 연결
-        inventoryId: character.inventoryId,
+        itemImage: itemImage, // 아이템 이미지 설정
+        addDamage: addDamage,
+        addHealth: addHealth,
+        addDefense: addDefense,
+        addAtkSpd: addAtkSpd,
+        inventory: { connect: { id: character.inventoryId } }, // 인벤토리와 연결
       },
     });
 
     return res.status(201).json(character);
   } catch (error) {
     console.error("아이템 생성 중 오류 발생:", error);
+    console.log("아이템 생성실패" + error);
+
     return res
       .status(500)
       .json({ message: "아이템 생성 실패", error: error.message });
@@ -88,7 +107,34 @@ router.post("/item", async (req, res) => {
 //#endregion
 
 //#region 아이템 삭제
+router.delete("/item/:id", async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    // 아이템 존재 여부 확인
+    const item = await prisma.item.findUnique({
+      where: { id: id },
+    });
+
+    if (!item) {
+      return res.status(404).json({ message: "아이템을 찾을 수 없습니다." });
+    }
+
+    // 아이템 삭제
+    await prisma.item.delete({
+      where: { id: id },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "아이템이 성공적으로 삭제되었습니다." });
+  } catch (error) {
+    console.error("아이템 삭제 중 오류 발생:", error);
+    return res
+      .status(500)
+      .json({ message: "아이템 삭제 실패", error: error.message });
+  }
+});
 //#endregion
 
 //#region Backup

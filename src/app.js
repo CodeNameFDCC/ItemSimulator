@@ -49,8 +49,8 @@ async function main() {
   app.use("/api", userRoutes);
   app.use("/api", charaterRoutes);
   app.use("/api", inventoryRoutes);
+  app.use("/api", equipRoutes);
   // app.use("/api", shopRoutes);
-  // app.use("/api", equipRoutes);
 
   app.get("/error", (req, res) => {
     throw new Error("강제 오류 발생!");

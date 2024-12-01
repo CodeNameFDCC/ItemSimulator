@@ -9,6 +9,7 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET_KEY;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET_KEY;
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const refreshTokenArr = [];
 //#region 로그인
 
 const router = express.Router();
@@ -49,6 +50,8 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    refreshTokenArr.push(refreshToken);
+
     res.status(200).json({
       userId: account.id,
       userName: account.userName,
@@ -80,6 +83,39 @@ router.post("/signup", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "User creation failed" });
     //throw new Error("회원가입 Error" + error);
+  }
+});
+//#endregion
+
+//#region 로그아웃
+router.post("/logout", async (req, res) => {
+  const { refreshToken } = req.body;
+  //console.log("로그아웃 시도" + refreshToken);
+
+  // 리프레시 토큰이 없는 경우
+  if (!refreshToken) {
+    return res
+      .status(401)
+      .json({ message: "로그아웃 실패: 리프레시 토큰이 필요합니다." });
+  }
+  try {
+    // refreshTokenArr에서 해당 토큰을 찾습니다.
+    const tokenIndex = refreshTokenArr.findIndex(
+      (token) => token === refreshToken
+    );
+
+    if (tokenIndex === -1) {
+      return res
+        .status(401)
+        .json({ message: "로그아웃 실패: 해당 토큰이 없습니다." });
+    }
+
+    // 토큰을 배열에서 제거합니다.
+    refreshTokenArr.splice(tokenIndex, 1); // 해당 인덱스의 토큰을 삭제합니다.
+    res.status(200).json({ message: "로그아웃 성공" });
+  } catch (error) {
+    console.error("로그아웃 중 오류 발생:", error);
+    res.status(500).json({ message: "로그아웃 실패", error: error.message });
   }
 });
 //#endregion

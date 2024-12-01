@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그아웃</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #121212; /* 다크 배경 */
+        color: #e0e0e0; /* 밝은 글자색 */
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* 화면 전체 높이 */
+      }
+      .container {
+        background: #1e1e1e; /* 카드 배경 */
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        padding: 30px;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+      }
+      h1 {
+        margin-bottom: 20px;
+        color: #ffffff; /* 제목 색상 */
+      }
+      p {
+        margin-bottom: 30px;
+        color: #c0c0c0; /* 설명 색상 */
+      }
+      .button {
+        padding: 10px 20px;
+        background-color: #f44336; /* 빨간색 버튼 */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s; /* 부드러운 전환 효과 */
+      }
+      .button:hover {
+        background-color: #d32f2f; /* 버튼 호버 색상 */
+      }
+      .link {
+        display: block;
+        margin-top: 20px;
+        color: #4caf50; /* 링크 색상 */
+        text-decoration: none;
+        transition: color 0.3s; /* 부드러운 전환 효과 */
+      }
+      .link:hover {
+        color: #388e3c; /* 링크 호버 색상 */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>로그아웃 하시겠습니까?</h1>
+      <p>현재 세션을 종료하고 로그아웃합니다.</p>
+      <button class="button" onclick="logout()">로그아웃</button>
+      <a href="character.html" class="link">취소</a>
+    </div>
+
+    <script>
+      function logout() {
+        // 로그아웃 API 호출
+        const reToken = window.sessionStorage.getItem("refreshToken");
+        const accessToken = window.sessionStorage.getItem("accessToken");
+        alert(reToken);
+        fetch("/api/logout", {
+          method: "POST",
+          headers: {
+            // headers 객체 내에 포함
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+          },
+          body: JSON.stringify({ refreshToken: reToken }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              // 로그아웃 성공 시 메인 페이지로 리다이렉트
+              window.sessionStorage.setItem("userId", "");
+              window.sessionStorage.setItem("userName", "");
+              window.sessionStorage.setItem("characterId", "");
+              window.sessionStorage.setItem("characterName", "");
+              window.location.href = "index.html";
+            } else {
+              alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
+            }
+          })
+          .catch((error) => {
+            console.error("오류:", error);
+            alert("로그아웃 중 오류가 발생했습니다.");
+          });
+      }
+    </script>
+  </body>
+</html>

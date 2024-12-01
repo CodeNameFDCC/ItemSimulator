@@ -8,13 +8,11 @@
       body {
         font-family: Arial, sans-serif;
         background-color: #090029;
+        color: #e0e0e0; /* 밝은 글자색 */
         display: flex;
         flex-direction: column;
         align-items: center;
         padding: 20px;
-      }
-      h1 {
-        color: #333;
       }
       .container {
         display: flex;
@@ -58,9 +56,55 @@
         border: 1px solid #ddd;
         border-radius: 4px;
       }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #1e1e1e; /* 네비게이션 바 배경 */
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px; /* 컨텐츠와의 간격 */
+      }
+      .navbar a {
+        color: #ffffff; /* 링크 색상 */
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+      .navbar a:hover {
+        background-color: #4caf50; /* 호버 시 배경색 */
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1e1e1e; /* 카드 배경 */
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: #ffffff; /* 제목 색상 */
+      }
+      h3 {
+        color: #238ec8;
+      }
     </style>
   </head>
   <body>
+    <!-- 멋진 navbar -->
+    <div class="navbar" , style="width: 100%">
+      <div><strong>캐릭터 관리</strong></div>
+      <div>
+        <a href="character.html">홈</a>
+        <a href="logout.html">로그아웃</a>
+      </div>
+    </div>
+    <!-- 멋진 navbar -->
     <h1>캐릭터 관리</h1>
     <div id="createForm">
       <input
@@ -75,6 +119,12 @@
         placeholder="캐릭터 이미지 URL"
         required
       />
+      <input
+        type="text"
+        id="characterDesc"
+        placeholder="캐릭터 설명"
+        required
+      />
       <button id="createCharacter">캐릭터 생성</button>
     </div>
 
@@ -84,7 +134,8 @@
       const characterList = document.getElementById("characterList");
       const userId = sessionStorage.getItem("userId");
       const userName = sessionStorage.getItem("userName");
-      alert(`${userId}${userName}`);
+      const accessToken = sessionStorage.getItem("accessToken");
+      //alert(`${userId}${userName}`);
       let characters = [];
 
       // 페이지 로드 시 캐릭터 목록 가져오기
@@ -99,7 +150,13 @@
 
       // 캐릭터 목록 가져오기 함수
       async function fetchCharacters() {
-        const response = await fetch(`/api/characters/${userName}`);
+        const response = await fetch(`/api/characters/${userName}`, {
+          headers: {
+            // headers 객체 내에 포함
+            "Content-Type": "application/json", // 올바른 대문자 사용
+            Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+          },
+        });
         characters = await response.json();
         renderCharacters();
       }
@@ -110,13 +167,18 @@
         .addEventListener("click", async () => {
           const name = document.getElementById("characterName").value;
           const image = document.getElementById("characterImage").value;
+          const desc = document.getElementById("characterDesc").value;
 
           if (name && image) {
-            const newCharacter = { name, image, userId };
-            alert(`이름 ${name} 이미지${image} 아이디${userId}`);
+            const newCharacter = { name, image, desc, userId };
+            //alert(`이름 ${name} 이미지${image} 설명${desc} 아이디${userId}`);
             const response = await fetch("/api/characters", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                // headers 객체 내에 포함
+                "Content-Type": "application/json", // 올바른 대문자 사용
+                Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+              },
               body: JSON.stringify(newCharacter),
             });
 
@@ -124,6 +186,7 @@
               await fetchCharacters(); // 새 캐릭터 추가 후 목록 갱신
               document.getElementById("characterName").value = "";
               document.getElementById("characterImage").value = "";
+              document.getElementById("characterDesc").value = "";
             } else {
               alert(response.message);
               alert("캐릭터 생성 실패");
@@ -139,6 +202,10 @@
 
         const response = await fetch(`/api/characters/${characterId}`, {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 액세스 토큰 포함
+          },
         });
         alert(characterId);
 
@@ -170,10 +237,7 @@
         sessionStorage.setItem("characterName", name);
         const characterId = characters[idx].id;
         sessionStorage.setItem("characterId", characterId);
-        alert(`${name} 캐릭터 선택됨!`);
         window.location.href = "characterInfo.html";
-        // 여기서 캐릭터 화면으로 이동하는 로직 추가 가능
-        // 예: window.location.href = 'characterDetail.html'; // 캐릭터 상세 페이지로 이동
       }
     </script>
   </body>

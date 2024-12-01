@@ -6,7 +6,7 @@ dotenv.config();
 const router = express.Router();
 
 //#region 캐릭터 생성
-router.post("/characters", async (req, res) => {
+router.post("/characters", authenticateJWT, async (req, res) => {
   const { name, image, userId } = req.body;
 
   // 입력 값 검증
@@ -51,6 +51,13 @@ router.post("/characters", async (req, res) => {
       },
     });
 
+    await prisma.character.update({
+      where: {
+        id: character.id,
+      },
+      data: { inventoryId: inventory.id },
+    });
+
     return res.status(201).json(character);
   } catch (error) {
     console.error("캐릭터 생성 중 오류 발생:", error);
@@ -62,7 +69,7 @@ router.post("/characters", async (req, res) => {
 //#endregion
 
 //#region 캐릭터들가져오기
-router.get("/characters/:userName", async (req, res) => {
+router.get("/characters/:userName", authenticateJWT, async (req, res) => {
   try {
     const { userName } = req.params;
     console.log("캐릭터 가져오기 시도" + `${userName}`);
@@ -80,7 +87,7 @@ router.get("/characters/:userName", async (req, res) => {
 
 //#region 캐릭터 하나 가져오기
 
-router.get("/character/:characterId", async (req, res) => {
+router.get("/character/:characterId", authenticateJWT, async (req, res) => {
   try {
     const { characterId } = req.params;
     console.log("캐릭터 가져오기 시도" + `${characterId}`);
@@ -98,7 +105,7 @@ router.get("/character/:characterId", async (req, res) => {
 //#endregion
 
 //#region 캐릭터 삭제
-router.delete("/characters/:characterId", async (req, res) => {
+router.delete("/characters/:characterId", authenticateJWT, async (req, res) => {
   const { characterId } = req.params; // URL에서 characterId를 추출
 
   try {

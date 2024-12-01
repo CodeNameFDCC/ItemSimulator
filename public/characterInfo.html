@@ -8,23 +8,26 @@
       body {
         font-family: Arial, sans-serif;
         margin: 20px;
-        background-color: #f4f4f4;
+        background-color: #121212; /* 다크 배경 */
+        color: #e0e0e0; /* 밝은 글자색 */
       }
       h1 {
         text-align: center;
+        color: #ffffff; /* 제목 색상 */
       }
       .container {
         max-width: 600px;
         margin: 0 auto;
         padding: 20px;
-        background: white;
+        background: #1e1e1e; /* 카드 배경 */
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       }
       .character-info {
-        border: 1px solid #ccc;
+        border: 1px solid #444; /* 경계 색상 */
         padding: 20px;
         border-radius: 8px;
+        background-color: #2a2a2a; /* 캐릭터 정보 배경 */
       }
       .character-info img {
         max-width: 100%;
@@ -34,55 +37,150 @@
       .equipped-items {
         margin-top: 20px;
       }
+      .item-list {
+        margin-top: 20px;
+      }
       .item {
-        display: inline-block;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin: 5px;
-        text-align: center;
-        border-radius: 5px;
-        background-color: #fafafa;
+        display: flex;
+        align-items: center;
+      }
+      .item img {
+        max-width: 50px; /* 이미지 크기 조정 */
+        margin-right: 10px; /* 이미지와 텍스트 간격 */
+        border-radius: 4px; /* 이미지 모서리 둥글게 */
       }
       .error {
         color: red;
         text-align: center;
       }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #1e1e1e; /* 네비게이션 바 배경 */
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px; /* 컨텐츠와의 간격 */
+      }
+      .navbar a {
+        color: #ffffff; /* 링크 색상 */
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+      .navbar a:hover {
+        background-color: #4caf50; /* 호버 시 배경색 */
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1e1e1e; /* 카드 배경 */
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+      .navbar.h1,
+      .navbar.h2 {
+        text-align: center;
+        color: #ffffff; /* 제목 색상 */
+      }
+      /*navbar sytyle*/
     </style>
   </head>
   <body>
+    <!-- 멋진 navbar -->
+    <div class="navbar">
+      <div><strong>캐릭터 정보</strong></div>
+      <div>
+        <a href="character.html">홈</a>
+        <a href="item.html">아이템 생성</a>
+        <a href="logout.html">로그아웃</a>
+      </div>
+    </div>
+    <!-- 멋진 navbar -->
     <div class="container">
       <h1>캐릭터 정보</h1>
       <div id="character-details" class="character-info" style="display: none">
         <h2 id="character-name"></h2>
         <img id="character-image" src="" alt="캐릭터 이미지" />
         <p id="character-description"></p>
+        <p id="character-statuse"></p>
 
         <h3>인벤토리</h3>
         <div id="inventory" class="inventory"></div>
-
-        <h3>장착된 아이템</h3>
-        <div id="equipped-items" class="equipped-items"></div>
       </div>
 
       <div id="error-message" class="error" style="display: none"></div>
     </div>
 
     <script>
-      // 미리 정의된 캐릭터 ID
-
       // 페이지 로드 시 캐릭터 정보 가져오기
+      const accessToken = sessionStorage.getItem("accessToken");
       window.onload = () => {
         const characterId = window.sessionStorage.getItem("characterId");
+        if (!characterId) {
+          alert("캐릭터를 먼저 선택해주세요.");
+          window.location.href = "character.html"; // 로그인 페이지로 이동
+        }
         fetchCharacterInfo(characterId);
+        fetchItemList(characterId);
       };
+
+      async function fetchItemList(characterId) {
+        try {
+          const response = await fetch(`/api/inventory/${characterId}`, {
+            headers: {
+              // headers 객체 내에 포함
+              "Content-Type": "application/json", // 올바른 대문자 사용
+              Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+            },
+          });
+          if (!response.ok) {
+            throw new Error("아이템 목록을 가져오는 데 실패했습니다." + error);
+          }
+
+          const items = await response.json();
+          const itemListDiv = document.getElementById("inventory");
+          itemListDiv.innerHTML = ""; // 기존 목록 초기화
+
+          items.forEach((item) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "item";
+            itemDiv.innerHTML = `
+      <img src="${item.itemImage || "default-image.png"}" alt="${
+              item.itemName
+            }" />
+      <div>
+          <strong>${item.itemName}</strong>
+          <p>${item.itemDesc}</p>
+          <p>price: ${item.price} damage:${item.addDamage} health:${
+              item.addHealth
+            } defence:${item.addDefense} atkSpd${item.addAtkSpd}</p>
+      </div>
+      <button class="equip-button" onclick="toggleEquip('${item.id}')">${
+              item.isEquip ? "해제" : "착용"
+            }</button>`;
+            itemListDiv.appendChild(itemDiv);
+          });
+        } catch (error) {
+          console.error("오류:", error);
+          alert("아이템 목록을 가져오는 데 실패했습니다." + error);
+        }
+      }
 
       // 선택한 캐릭터의 정보를 가져오는 함수
       async function fetchCharacterInfo(id) {
-        alert(id);
         try {
-          const response = await fetch(
-            `http://localhost:3018/api/character/${id}`
-          );
+          const response = await fetch(`/api/character/${id}`, {
+            headers: {
+              // headers 객체 내에 포함
+              "Content-Type": "application/json", // 올바른 대문자 사용
+              Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+            },
+          });
           if (!response.ok) {
             throw new Error("캐릭터를 찾을 수 없습니다.");
           }
@@ -96,28 +194,12 @@
             character.characterImage || "default-image.png"; // 기본 이미지
           document.getElementById("character-description").textContent =
             character.description || "설명 없음";
-
-          // // 인벤토리 표시
-          // const inventoryDiv = document.getElementById("inventory");
-          // inventoryDiv.innerHTML = "";
-          // character.inventory.forEach((item) => {
-          //   const itemDiv = document.createElement("div");
-          //   itemDiv.className = "item";
-          //   itemDiv.textContent = item.itemName; // 아이템 이름
-          //   inventoryDiv.appendChild(itemDiv);
-          // });
-
-          // // 장착된 아이템 표시 (가정: equippedItems 필드가 존재한다고 가정)
-          // const equippedDiv = document.getElementById("equipped-items");
-          // equippedDiv.innerHTML = "";
-          // if (character.equippedItems) {
-          //   character.equippedItems.forEach((item) => {
-          //     const equippedItemDiv = document.createElement("div");
-          //     equippedItemDiv.className = "item";
-          //     equippedItemDiv.textContent = item.itemName; // 장착된 아이템 이름
-          //     equippedDiv.appendChild(equippedItemDiv);
-          //   });
-          // }
+          document.getElementById(
+            "character-statuse"
+          ).textContent = `damage : ${character.damage},   
+          health :    ${character.health},    
+          defense :     ${character.defense},    
+          atkSpd :    ${character.atkspd},    `;
 
           // 캐릭터 정보 표시
           document.getElementById("character-details").style.display = "block";
@@ -126,6 +208,33 @@
           document.getElementById("error-message").textContent = error.message;
           document.getElementById("error-message").style.display = "block";
           document.getElementById("character-details").style.display = "none";
+        }
+      }
+
+      // 아이템 착용/해제 함수 추가
+      async function toggleEquip(itemId) {
+        try {
+          const response = await fetch(`/api/item/equip/${itemId}`, {
+            method: "PATCH",
+            headers: {
+              // headers 객체 내에 포함
+              "Content-Type": "application/json", // 올바른 대문자 사용
+              Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+            },
+          });
+
+          if (response.ok) {
+            alert("아이템 상태가 변경되었습니다!" + itemId);
+            const characterId = window.sessionStorage.getItem("characterId");
+            fetchItemList(characterId); // 아이템 목록 새로고침
+
+            fetchCharacterInfo(characterId);
+          } else {
+            throw new Error("아이템 상태 변경에 실패했습니다.");
+          }
+        } catch (error) {
+          console.error("오류:", error);
+          alert("아이템 상태 변경에 실패했습니다.");
         }
       }
     </script>
