@@ -21,6 +21,7 @@ router.post("/login", async (req, res) => {
     // 사용자 이름으로 계정 조회 (비동기 처리)
     const account = await prisma.account.findFirst({ where: { userName } });
 
+    console.log("계정 탐색");
     // 계정이 없거나 비밀번호가 유효하지 않은 경우
     if (!account) {
       console.log("계정 없음");
@@ -28,13 +29,15 @@ router.post("/login", async (req, res) => {
         .status(401)
         .json({ message: "로그인 실패: 잘못된 사용자 이름 또는 비밀번호" });
     }
-
+    console.log("페스워드 확인");
     const isPasswordValid = await bcrypt.compare(
       userPassword,
       account.userPassword
     );
+    console.log("페스워드 확인완료");
 
     if (!isPasswordValid) {
+      console.log("로그인 실패");
       return res
         .status(401)
         .json({ message: "로그인 실패: 잘못된 사용자 이름 또는 비밀번호" });

@@ -48,3 +48,12 @@ npx prisma migrate dev --name [명칭!!]
 
 프리즈마 상태 확인
 npx prisma studio
+
+cd ~
+cd Downloads
+
+ssh -i sparta_keypair.pem ubuntu@ 주소
+
+pm2 kill
+
+pm start 
